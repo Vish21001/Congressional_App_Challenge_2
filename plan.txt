@@ -1,0 +1,21 @@
+Pages
+- Homepage(Basic Intro)/Program Filter
+- Specific Resources Page
+- Leaderboard(for most hours worked/most contributed)
+- User profile pages which other users can look at
+- Shows how many people from the said region did/do that job that are registered on this website
+- Saved Jobs/Internships/Programs
+
+Features
+- User Profiles
+- User logins
+- AI Chatbot
+- Keywords
+- Skill Level Rating
+- Hours worked(if going for something specific in that specific field)
+- Distance
+- Type
+- User Suggestions that are Manually Checked and uploaded
+- Optional: Impaxr Summary
+
+Use google maps API for Supabase Table Location(For both opportunities and saved opportunities)
