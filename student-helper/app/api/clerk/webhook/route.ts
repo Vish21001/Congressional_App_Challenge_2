@@ -71,4 +71,5 @@ export async function POST(req: Request) {
 
     const { error } = await supabase.from("users").delete().eq("id", clerkUserId);
     if (error) return new Response(error.message, { status: 500 });
-  }
+    }
+    
