@@ -2,13 +2,20 @@ import { Webhook } from "svix";
 import { headers } from "next/headers";
 import { createClient } from "@supabase/supabase-js";
 
-export const runtime = "nodejs"; // important: svix verification needs node runtime
+export const runtime = "nodejs"; // svix verification needs node runtime
 
-// 1) Supabase admin client (SERVICE ROLE — server only!)
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_SUPABASE_SERVICE_ROLE_KEY!
-);
+function getSupabaseAdmin() {
+  const url = process.env.SUPABASE_URL ?? process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const serviceRoleKey =
+    process.env.SUPABASE_SERVICE_ROLE_KEY ??
+    process.env.NEXT_SUPABASE_SERVICE_ROLE_KEY;
+
+  if (!url) throw new Error("Missing Supabase URL env var.");
+  if (!serviceRoleKey) throw new Error("Missing Supabase service role key env var.");
+
+  // Supabase admin client (SERVICE ROLE — server only!)
+  return createClient(url, serviceRoleKey);
+}
 
 export async function POST(req: Request) {
   const payload = await req.text();
@@ -22,7 +29,7 @@ export async function POST(req: Request) {
     return new Response("Missing Svix headers", { status: 400 });
   }
 
-  // 2) Verify the webhook signature
+  // Verify the webhook signature
   const wh = new Webhook(process.env.CLERK_WEBHOOK_SECRET!);
 
   let evt: any;
@@ -32,44 +39,43 @@ export async function POST(req: Request) {
       "svix-timestamp": svix_timestamp,
       "svix-signature": svix_signature,
     });
-  } catch (err) {
+  } catch {
     return new Response("Invalid signature", { status: 400 });
   }
 
   const eventType = evt.type;
   const data = evt.data;
 
-  // 3) Handle events
+  const supabase = getSupabaseAdmin();
+
   if (eventType === "user.created" || eventType === "user.updated") {
     const clerkUserId = data.id as string;
 
     const email =
-      data.email_addresses?.find((e: any) => e.id === data.primary_email_address_id)
-        ?.email_address ?? null;
+      data.email_addresses?.find(
+        (e: any) => e.id === data.primary_email_address_id
+      )?.email_address ?? null;
 
     const fullName =
       [data.first_name, data.last_name].filter(Boolean).join(" ") || null;
 
-    // Upsert user row in Supabase
-    const { error } = await supabase
-      .from("users")
-      .upsert(
-        {
-          id: clerkUserId,
-          email,
-          full_name: fullName,
-          // role/profile_icon/onboarding defaults happen in DB
-        },
-        { onConflict: "id" }
-      );
+    const { error } = await supabase.from("users").upsert(
+      {
+        id: clerkUserId,
+        email,
+        full_name: fullName,
+      },
+      { onConflict: "id" }
+    );
 
     if (error) return new Response(error.message, { status: 500 });
-  }
-
-  if (eventType === "user.deleted") {
+  } else if (eventType === "user.deleted") {
     const clerkUserId = data.id as string;
 
     const { error } = await supabase.from("users").delete().eq("id", clerkUserId);
     if (error) return new Response(error.message, { status: 500 });
-    }
-    
+  }
+
+  // Always return 200 so Clerk marks delivery successful.
+  return new Response("ok", { status: 200 });
+}
