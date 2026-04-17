@@ -12,7 +12,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
     <!-- Stylesheet -->
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="./app/style.css">
 
     <!-- Supabase JS -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -80,8 +80,8 @@
     <script src="script.js"></script>
     <script>
         // Initialize Supabase
-        const supabaseUrl = "YOUR_SUPABASE_URL";
-        const supabaseKey = "YOUR_SUPABASE_ANON_KEY";
+        const supabaseUrl = "https://logmdbzvsdaqowjytifk.supabase.co";
+        const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxvZ21kYnp2c2RhcW93anl0aWZrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjkyMDI0ODEsImV4cCI6MjA4NDc3ODQ4MX0.zlL3OA4kII3TxT7ic0E3CtZzPr29PhZl4miijTvwAEI";
         const supabase = supabase.createClient(supabaseUrl, supabaseKey);
 
         // Example: Fetch opportunities from Supabase

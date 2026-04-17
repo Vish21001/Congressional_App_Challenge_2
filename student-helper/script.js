@@ -39,6 +39,13 @@ document.querySelectorAll('.pill').forEach(pill => {
     pill.addEventListener('click', () => {
         pill.classList.toggle('active');
         console.log('Selected:', pill.textContent);
+        const newWindow = document.createElement('div');
+        newWindow.classList.add('new-window');
+        newWindow.innerHTML = `<div class="close-btn">X</div><h2>${pill.textContent} </h2><p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>`;
+        document.body.appendChild(newWindow);
+        document.getElementsByClassName('close-btn')[0].addEventListener('click', () => {
+            document.body.removeChild(newWindow);
+        });
     });
 });
 
